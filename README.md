@@ -3,7 +3,6 @@
 This repository provides the official implementation of **AeroFuse**, a multimodal fusion framework for hyperspectral image (HSI) and LiDAR-based remote sensing classification. It includes the model implementation, training and evaluation scripts, and related experimental configurations for reproducing the results reported in our manuscript. The repository is intended to support research transparency and reproducibility. Please refer to the provided scripts and configuration files for details on model training, evaluation, and experimental settings.
 ## Installation and Inference
 
-### 1. Install Dependencies
 
 Install the required Python packages:
 
@@ -11,32 +10,30 @@ Install the required Python packages:
 python -m pip install -r requirements.txt
 ```
 
-### 2. Verify Pretrained Checkpoints
+Install dependencies:
 
-Verify the integrity of all pretrained checkpoints using CPU:
+    python -m pip install -r requirements.txt
 
-```bash
-python infer.py --verify-all --device cpu
-```
+Check all weights:
 
-The verification process checks the checkpoint hashes recorded in the manifest and validates the model state dictionaries.
+    python infer.py --verify-all --device cpu
 
-### 3. Evaluate a Dataset
+Evaluate one dataset, where DATA_ROOT contains dataset directories named Houston, Trento, MUUFL, Houston2018 and Augsburg:
 
-Set `DATA_ROOT` to the parent directory containing the dataset folders `Houston`, `Trento`, `MUUFL`, `Houston2018`, and `Augsburg`. To evaluate MUUFL using a GPU, run:
+    python infer.py --dataset MUUFL --data-root DATA_ROOT --device cuda:0 --batch-size 256 --output muufl_predictions.npz
 
-```bash
-python infer.py \
-    --dataset MUUFL \
-    --data-root DATA_ROOT \
-    --device cuda:0 \
-    --batch-size 256 \
-    --output muufl_predictions.npz
-```
+The output file stores three 0-based prediction arrays named `run1`, `run2`,
+and `run3`. Without `--output`, only metrics are printed. Use `--max-samples 8`
+for a quick input check; subset metrics are intentionally suppressed.
+Houston2018 MAT v7.3 data are streamed in batches; Augsburg HSI parts are read
+one at a time in numeric order. The auxiliary MAT array is loaded into host
+memory. `--report REPORT.json` writes per-run metrics without requiring an
+archived results file.
 
-Replace `DATA_ROOT` with the actual path to your dataset directory.
+Houston2018 has 2,000,160 test patches, so full inference is much faster on a
+CUDA GPU. Install a CUDA-enabled PyTorch build and check that
+`torch.cuda.is_available()` returns `True`. For example:
 
-Predicted class labels are represented as zero-based indices. If `--output` is omitted, the script prints evaluation metrics without saving predictions.
-
-For a quick input and pipeline check, use `--max-samples 8`. In this mode, subset evaluation metrics are intentionally suppressed.
+    python infer.py --dataset Houston2018 --data-root DATA_ROOT --device cuda:0 --batch-size 128
+    python infer.py --dataset Augsburg --data-root DATA_ROOT --device cuda:0 --batch-size 128
 
