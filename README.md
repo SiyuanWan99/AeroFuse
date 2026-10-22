@@ -30,10 +30,4 @@ one at a time in numeric order. The auxiliary MAT array is loaded into host
 memory. `--report REPORT.json` writes per-run metrics without requiring an
 archived results file.
 
-Houston2018 has 2,000,160 test patches, so full inference is much faster on a
-CUDA GPU. Install a CUDA-enabled PyTorch build and check that
-`torch.cuda.is_available()` returns `True`. For example:
-
-    python infer.py --dataset Houston2018 --data-root DATA_ROOT --device cuda:0 --batch-size 128
-    python infer.py --dataset Augsburg --data-root DATA_ROOT --device cuda:0 --batch-size 128
 
